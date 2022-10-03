@@ -101,6 +101,7 @@ const (
 	helloChrome           = "Chrome"
 	helloIOS              = "iOS"
 	helloAndroid          = "Android"
+	helloZalando          = "zalando"
 
 	// versions
 	helloAutoVers = "0"
@@ -155,6 +156,8 @@ var (
 	HelloIOS_Auto = HelloIOS_12_1
 	HelloIOS_11_1 = ClientHelloID{helloIOS, "111", nil} // legacy "111" means 11.1
 	HelloIOS_12_1 = ClientHelloID{helloIOS, "12.1", nil}
+
+	HelloZalando = ClientHelloID{helloZalando, "100", nil}
 )
 
 // based on spec's GreaseStyle, GREASE_PLACEHOLDER may be replaced by another GREASE value
