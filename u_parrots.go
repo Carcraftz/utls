@@ -581,6 +581,10 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&PSKKeyExchangeModesExtension{[]uint8{
 					PskModeDHE,
 				}},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
 				&SupportedVersionsExtension{[]uint16{
 					VersionTLS13,
 					VersionTLS12,
