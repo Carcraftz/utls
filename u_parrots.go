@@ -558,12 +558,14 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				compressionNone,
 			},
 			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
 				&SNIExtension{},
 				&UtlsExtendedMasterSecretExtension{},
 				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
 				&SupportedCurvesExtension{[]CurveID{CurveID(GREASE_PLACEHOLDER), X25519, CurveP256, CurveP384}},
-				&SupportedPointsExtension{SupportedPoints: []byte{pointFormatUncompressed}},
-				&SessionTicketExtension{},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+				}},
 				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
 				&StatusRequestExtension{},
 				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
@@ -577,18 +579,12 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					PKCS1WithSHA512,
 					PKCS1WithSHA1,
 				}},
+				&SCTExtension{},
 				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
 				&PSKKeyExchangeModesExtension{[]uint8{
 					PskModeDHE,
 				}},
-				&KeyShareExtension{[]KeyShare{
-					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
-					{Group: X25519},
-				}},
-				&SupportedVersionsExtension{[]uint16{
-					VersionTLS13,
-					VersionTLS12,
-				}},
+				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
 		}, nil
