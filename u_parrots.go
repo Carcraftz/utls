@@ -736,6 +736,17 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					0x502,
 					0x602,
 				}},
+				&SupportedVersionsExtension{[]uint16{
+					VersionTLS13,
+					VersionTLS12,
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveP256},
+				}},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
 		}, nil
 	case HelloChrome_108:
