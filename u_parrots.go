@@ -677,13 +677,20 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 			},
 			Extensions: []TLSExtension{
 				&SNIExtension{},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+					0x01, // pointFormatUncompressed
+					0x02, // pointFormatUncompressed
+
+				}},
 				&SupportedCurvesExtension{[]CurveID{
 					CurveP256,
 				}},
-				&SessionTicketExtension{},
-				&GenericExtension{Id: 0x16},
-				&UtlsExtendedMasterSecretExtension{},
 
+				&SessionTicketExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&GenericExtension{Id: 0x16},
 				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
 					ECDSAWithP256AndSHA256,
 					PSSWithSHA256,
