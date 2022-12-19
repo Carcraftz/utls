@@ -872,7 +872,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					ECDSAWithP384AndSHA384,
 					ECDSAWithP521AndSHA512,
 					0x0807,
-					0x0807,
+					0x0808,
 					0x0809,
 					0x080A,
 					0x080B,
