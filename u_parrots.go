@@ -683,13 +683,14 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&SupportedCurvesExtension{[]CurveID{
 					CurveP256,
 				}},
-
 				&SessionTicketExtension{},
-				&UtlsExtendedMasterSecretExtension{},
-				&UtlsExtendedMasterSecretExtension{},
 				&GenericExtension{Id: 0x16},
+				&UtlsExtendedMasterSecretExtension{},
 				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
 					ECDSAWithP256AndSHA256,
+					ECDSAWithP384AndSHA384,
+					ECDSAWithP521AndSHA512,
+					0x7,
 					PSSWithSHA256,
 					PKCS1WithSHA256,
 					ECDSAWithP384AndSHA384,
