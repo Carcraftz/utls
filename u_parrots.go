@@ -670,8 +670,8 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
 				TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 				0x9F,
-				0xCC,
-				0xA8,
+				204,
+				168,
 			},
 			CompressionMethods: []byte{
 				compressionNone,
