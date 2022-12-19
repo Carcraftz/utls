@@ -841,6 +841,59 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
 		}, nil
+	case HelloCloudflare_V2:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				0xC013,
+				0xC014,
+				0xC009,
+				0xC00A,
+				0x00FF,
+			},
+			CompressionMethods: []byte{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&SNIExtension{},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+					0x01, // pointFormatUncompressed
+					0x02, // pointFormatUncompressed
+
+				}},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveP256,
+				}},
+				&SessionTicketExtension{},
+				&GenericExtension{Id: 0x16},
+				&UtlsExtendedMasterSecretExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					ECDSAWithP384AndSHA384,
+					ECDSAWithP521AndSHA512,
+					0x0807,
+					0x0807,
+					0x0809,
+					0x080A,
+					0x080B,
+					0x0804,
+					0x0805,
+					0x0806,
+					0x0401,
+					0x0501,
+					0x0601,
+					0x303,
+					0x0203,
+					0x301,
+					0x0201,
+					0x302,
+					0x202,
+					0x402,
+					0x502,
+					0x602,
+				}},
+			},
+		}, nil
 
 	default:
 		return ClientHelloSpec{}, errors.New("ClientHello ID " + id.Str() + " is unknown")
