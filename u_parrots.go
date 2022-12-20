@@ -894,7 +894,63 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				}},
 			},
 		}, nil
+	case HelloCloudflare_V3:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				0xC013,
+				0xC014,
+				0xC009,
+				0xC00A,
+				0x00FF,
+			},
+			CompressionMethods: []byte{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&SNIExtension{},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+					0x01, // pointFormatUncompressed
+					0x02, // pointFormatUncompressed
 
+				}},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveP256,
+				}},
+				&SessionTicketExtension{},
+				&GenericExtension{Id: 0x16},
+				&UtlsExtendedMasterSecretExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					0x0403,
+					0x0804,
+					0x0401,
+					0x0503,
+					0x0805,
+					0x0501,
+					0x0806,
+					0x0601,
+				}},
+				&GenericExtension{Id: 0x12},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					GREASE_PLACEHOLDER,
+					VersionTLS13,
+					VersionTLS12,
+				}},
+				&CompressCertificateExtension{[]CertCompressionAlgo{
+					CertCompressionBrotli,
+				}},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
 	default:
 		return ClientHelloSpec{}, errors.New("ClientHello ID " + id.Str() + " is unknown")
 	}

@@ -162,6 +162,7 @@ var (
 	HelloZalando       = ClientHelloID{helloZalando, "100", nil}
 	HelloCloudflare    = ClientHelloID{hellocloudflare, "100", nil}
 	HelloCloudflare_V2 = ClientHelloID{hellocloudflare, "123", nil}
+	HelloCloudflare_V3 = ClientHelloID{hellocloudflare, "125", nil}
 )
 
 // based on spec's GreaseStyle, GREASE_PLACEHOLDER may be replaced by another GREASE value
