@@ -960,7 +960,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&CompressCertificateExtension{
 					Algorithms: []CertCompressionAlgo{CertCompressionBrotli},
 				},
-				&ALPNExtension{[]string{"h2"}},
+				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
