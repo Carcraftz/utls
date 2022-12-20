@@ -897,29 +897,43 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 	case HelloCloudflare_V3:
 		return ClientHelloSpec{
 			CipherSuites: []uint16{
+				GREASE_PLACEHOLDER,
+				0x1301,
+				0x1302,
+				0x1303,
+				0xC02B,
+				0xC02F,
+				0xC02C,
+				0xC030,
+				0xCCA9,
+				0xCCA8,
 				0xC013,
 				0xC014,
-				0xC009,
-				0xC00A,
-				0x00FF,
+				0x009C,
+				0x009D,
+				0x002F,
+				0x0035,
 			},
 			CompressionMethods: []byte{
 				compressionNone,
 			},
 			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
 				&SNIExtension{},
-				&SupportedPointsExtension{SupportedPoints: []byte{
-					0x00, // pointFormatUncompressed
-					0x01, // pointFormatUncompressed
-					0x02, // pointFormatUncompressed
-
-				}},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
 				&SupportedCurvesExtension{[]CurveID{
+					CurveID(GREASE_PLACEHOLDER),
+					X25519,
 					CurveP256,
+					CurveP384,
+				}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					pointFormatUncompressed,
 				}},
 				&SessionTicketExtension{},
-				&GenericExtension{Id: 0x16},
-				&UtlsExtendedMasterSecretExtension{},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&StatusRequestExtension{},
 				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
 					0x0403,
 					0x0804,
@@ -943,10 +957,10 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					VersionTLS13,
 					VersionTLS12,
 				}},
-				&CompressCertificateExtension{[]CertCompressionAlgo{
-					CertCompressionBrotli,
-				}},
-				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&CompressCertificateExtension{
+					Algorithms: []CertCompressionAlgo{CertCompressionBrotli},
+				},
+				&ALPNExtension{AlpnProtocols: []string{"h2"}},
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
