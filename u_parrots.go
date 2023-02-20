@@ -10,11 +10,22 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"sort"
 	"strconv"
 )
 
+func randomizeExtensions(extensions []uint16) []uint16 {
+	rand.Shuffle(len(extensions), func(i, j int) {
+		rand.Seed(RandomizeSeed())
+		extensions[i], extensions[j] = extensions[j], extensions[i]
+	})
+
+	return extensions
+}
+
 func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
+
 	switch id {
 	case HelloChrome_58, HelloChrome_62:
 		return ClientHelloSpec{
@@ -944,7 +955,7 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					0x0806,
 					0x0601,
 				}},
-				&GenericExtension{Id: 0x12},
+				&SCTExtension{},
 				&KeyShareExtension{[]KeyShare{
 					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
 					{Group: X25519},
@@ -960,6 +971,75 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				&CompressCertificateExtension{
 					Algorithms: []CertCompressionAlgo{CertCompressionBrotli},
 				},
+				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
+	case HelloChrome_110:
+		extensions := randomizeExtensions([]uint16{GREASE_PLACEHOLDER,
+			TLS_AES_128_GCM_SHA256,
+			TLS_AES_256_GCM_SHA384,
+			TLS_CHACHA20_POLY1305_SHA256,
+			TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+			TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+			TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			TLS_RSA_WITH_AES_128_GCM_SHA256,
+			TLS_RSA_WITH_AES_256_GCM_SHA384,
+			TLS_RSA_WITH_AES_128_CBC_SHA,
+			TLS_RSA_WITH_AES_256_CBC_SHA},
+		)
+
+		return ClientHelloSpec{
+			CipherSuites: append([]uint16{GREASE_PLACEHOLDER}, extensions...),
+			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
+				&SNIExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveID(GREASE_PLACEHOLDER),
+					X25519,
+					CurveP256,
+					CurveP384,
+				}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					pointFormatUncompressed,
+				}},
+				&SessionTicketExtension{},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&StatusRequestExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					PSSWithSHA256,
+					PKCS1WithSHA256,
+					ECDSAWithP384AndSHA384,
+					PSSWithSHA384,
+					PKCS1WithSHA384,
+					PSSWithSHA512,
+					PKCS1WithSHA512,
+				}},
+				&SCTExtension{},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					GREASE_PLACEHOLDER,
+					VersionTLS13,
+					VersionTLS12,
+				}},
+				&CompressCertificateExtension{[]CertCompressionAlgo{
+					CertCompressionBrotli,
+				}},
 				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
 				&UtlsGREASEExtension{},
 				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},

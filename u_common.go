@@ -146,7 +146,7 @@ var (
 	HelloFirefox_63   = ClientHelloID{helloFirefox, "63", nil}
 	HelloFirefox_65   = ClientHelloID{helloFirefox, "65", nil}
 
-	HelloChrome_Auto = HelloChrome_100
+	HelloChrome_Auto = HelloChrome_108
 	HelloChrome_58   = ClientHelloID{helloChrome, "58", nil}
 	HelloChrome_62   = ClientHelloID{helloChrome, "62", nil}
 	HelloChrome_70   = ClientHelloID{helloChrome, "70", nil}
@@ -154,6 +154,7 @@ var (
 	HelloChrome_83   = ClientHelloID{helloChrome, "83", nil}
 	HelloChrome_100  = ClientHelloID{helloChrome, "100", nil}
 	HelloChrome_108  = ClientHelloID{helloChrome, "108", nil}
+	HelloChrome_110  = ClientHelloID{helloChrome, "110", nil}
 
 	HelloIOS_Auto = HelloIOS_12_1
 	HelloIOS_11_1 = ClientHelloID{helloIOS, "111", nil} // legacy "111" means 11.1

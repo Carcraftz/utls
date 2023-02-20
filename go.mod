@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/zhangyunhao116/fastrand v0.3.0 // indirect
 	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa // indirect
 	golang.org/x/text v0.3.0 // indirect
 )
