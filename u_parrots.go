@@ -10,11 +10,22 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"sort"
 	"strconv"
 )
 
+func randomizeExtensions(extensions []uint16) []uint16 {
+	rand.Shuffle(len(extensions), func(i, j int) {
+		rand.Seed(RandomizeSeed())
+		extensions[i], extensions[j] = extensions[j], extensions[i]
+	})
+
+	return extensions
+}
+
 func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
+
 	switch id {
 	case HelloChrome_58, HelloChrome_62:
 		return ClientHelloSpec{
@@ -535,6 +546,73 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 				}},
 			},
 		}, nil
+	case HelloZalando:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				GREASE_PLACEHOLDER,
+				TLS_AES_128_GCM_SHA256,
+				TLS_AES_256_GCM_SHA384,
+				TLS_CHACHA20_POLY1305_SHA256,
+				TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+				TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+				TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+				TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+				TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+				TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+				// TLS_AES_128_GCM_SHA256,
+				// TLS_AES_256_GCM_SHA384,
+				// TLS_CHACHA20_POLY1305_SHA256,
+				// TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				// TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				// TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+				// TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				// TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				// TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+				// TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+				// TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+				// TLS_RSA_WITH_AES_128_GCM_SHA256,
+				// TLS_RSA_WITH_AES_256_GCM_SHA384,
+				// TLS_RSA_WITH_AES_128_CBC_SHA,
+				// TLS_RSA_WITH_AES_256_CBC_SHA,
+			},
+			CompressionMethods: []byte{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
+				&SNIExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+				&SupportedCurvesExtension{[]CurveID{CurveID(GREASE_PLACEHOLDER), X25519, CurveP256, CurveP384}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+				}},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&StatusRequestExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					PSSWithSHA256,
+					PKCS1WithSHA256,
+					ECDSAWithP384AndSHA384,
+					PSSWithSHA384,
+					PKCS1WithSHA384,
+					PSSWithSHA512,
+					PKCS1WithSHA512,
+					PKCS1WithSHA1,
+				}},
+				&SCTExtension{},
+				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
 	case HelloIOS_12_1:
 		return ClientHelloSpec{
 			CipherSuites: []uint16{
@@ -574,13 +652,10 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					PSSWithSHA256,
 					PKCS1WithSHA256,
 					ECDSAWithP384AndSHA384,
-					ECDSAWithSHA1,
-					PSSWithSHA384,
 					PSSWithSHA384,
 					PKCS1WithSHA384,
 					PSSWithSHA512,
 					PKCS1WithSHA512,
-					PKCS1WithSHA1,
 				}},
 				&StatusRequestExtension{},
 				&NPNExtension{},
@@ -595,6 +670,379 @@ func utlsIdToSpec(id ClientHelloID) (ClientHelloSpec, error) {
 					CurveP384,
 					CurveP521,
 				}},
+			},
+		}, nil
+	case HelloCloudflare:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				0x1302,
+				0x1303,
+				0x1301,
+				0xC02C,
+				0xC030,
+				0xC02B,
+				0xC02F,
+				0xCCA9,
+				0xCCA8,
+				0x009F,
+				0x009E,
+				0xCCAA,
+				0xC0AF,
+				0xC0AD,
+				0xC0AE,
+				0xC0AC,
+				0xC024,
+				0xC028,
+				0xC023,
+				0xC027,
+				0xC00A,
+				0xC014,
+				0xC009,
+				0xC013,
+				0xC0A3,
+				0xC09F,
+				0xC0A2,
+				0xC09E,
+				0x006B,
+				0x0067,
+				0x0039,
+				0x0033,
+				0x009D,
+				0x009C,
+				0xC0A1,
+				0xC09D,
+				0xC0A0,
+				0xC09C,
+				0x003D,
+				0x003C,
+				0x0035,
+				0x002F,
+				0x00FF,
+			},
+			CompressionMethods: []byte{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&SNIExtension{},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+					0x01, // pointFormatUncompressed
+					0x02, // pointFormatUncompressed
+
+				}},
+				&SupportedCurvesExtension{[]CurveID{
+					X25519,
+					CurveP256,
+					30,
+					CurveP521,
+					CurveP384,
+				}},
+				&SessionTicketExtension{},
+				&GenericExtension{Id: 0x16},
+				&UtlsExtendedMasterSecretExtension{},
+				&GenericExtension{Id: 0x31},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					ECDSAWithP384AndSHA384,
+					ECDSAWithP521AndSHA512,
+					0x0807,
+					0x0807,
+					0x0809,
+					0x080A,
+					0x080B,
+					0x0804,
+					0x0805,
+					0x0806,
+					0x0401,
+					0x0501,
+					0x0601,
+					0x303,
+					0x0203,
+					0x301,
+					0x0201,
+					0x302,
+					0x202,
+					0x402,
+					0x502,
+					0x602,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					VersionTLS13,
+					VersionTLS12,
+					VersionTLS11,
+					VersionTLS10,
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveP256},
+				}},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
+	case HelloChrome_108:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				GREASE_PLACEHOLDER,
+				TLS_AES_128_GCM_SHA256,
+				TLS_AES_256_GCM_SHA384,
+				TLS_CHACHA20_POLY1305_SHA256,
+				TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+				TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+				TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+				TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+				TLS_RSA_WITH_AES_128_GCM_SHA256,
+				TLS_RSA_WITH_AES_256_GCM_SHA384,
+				TLS_RSA_WITH_AES_128_CBC_SHA,
+				TLS_RSA_WITH_AES_256_CBC_SHA,
+			},
+			CompressionMethods: []uint8{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
+				&SNIExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveID(GREASE_PLACEHOLDER),
+					X25519,
+					CurveP256,
+					CurveP384,
+				}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					pointFormatUncompressed,
+				}},
+				&SessionTicketExtension{},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&StatusRequestExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					PSSWithSHA256,
+					PKCS1WithSHA256,
+					ECDSAWithP384AndSHA384,
+					PSSWithSHA384,
+					PKCS1WithSHA384,
+					PSSWithSHA512,
+					PKCS1WithSHA512,
+				}},
+				&SCTExtension{},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					GREASE_PLACEHOLDER,
+					VersionTLS13,
+					VersionTLS12,
+				}},
+				&CompressCertificateExtension{[]CertCompressionAlgo{
+					CertCompressionBrotli,
+				}},
+				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
+	case HelloCloudflare_V2:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				0xC013,
+				0xC014,
+				0xC009,
+				0xC00A,
+				0x00FF,
+			},
+			CompressionMethods: []byte{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&SNIExtension{},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					0x00, // pointFormatUncompressed
+					0x01, // pointFormatUncompressed
+					0x02, // pointFormatUncompressed
+
+				}},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveP256,
+				}},
+				&SessionTicketExtension{},
+				&GenericExtension{Id: 0x16},
+				&UtlsExtendedMasterSecretExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					ECDSAWithP384AndSHA384,
+					ECDSAWithP521AndSHA512,
+					0x0807,
+					0x0808,
+					0x0809,
+					0x080A,
+					0x080B,
+					0x0804,
+					0x0805,
+					0x0806,
+					0x0401,
+					0x0501,
+					0x0601,
+					0x303,
+					0x0203,
+					0x301,
+					0x0201,
+					0x302,
+					0x202,
+					0x402,
+					0x502,
+					0x602,
+				}},
+			},
+		}, nil
+	case HelloCloudflare_V3:
+		return ClientHelloSpec{
+			CipherSuites: []uint16{
+				GREASE_PLACEHOLDER,
+				0x1301,
+				0x1302,
+				0x1303,
+				0xC02B,
+				0xC02F,
+				0xC02C,
+				0xC030,
+				0xCCA9,
+				0xCCA8,
+				0xC013,
+				0xC014,
+				0x009C,
+				0x009D,
+				0x002F,
+				0x0035,
+			},
+			CompressionMethods: []byte{
+				compressionNone,
+			},
+			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
+				&SNIExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveID(GREASE_PLACEHOLDER),
+					X25519,
+					CurveP256,
+					CurveP384,
+				}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					pointFormatUncompressed,
+				}},
+				&SessionTicketExtension{},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&StatusRequestExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					0x0403,
+					0x0804,
+					0x0401,
+					0x0503,
+					0x0805,
+					0x0501,
+					0x0806,
+					0x0601,
+				}},
+				&SCTExtension{},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					GREASE_PLACEHOLDER,
+					VersionTLS13,
+					VersionTLS12,
+				}},
+				&CompressCertificateExtension{
+					Algorithms: []CertCompressionAlgo{CertCompressionBrotli},
+				},
+				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
+			},
+		}, nil
+	case HelloChrome_110:
+		extensions := randomizeExtensions([]uint16{GREASE_PLACEHOLDER,
+			TLS_AES_128_GCM_SHA256,
+			TLS_AES_256_GCM_SHA384,
+			TLS_CHACHA20_POLY1305_SHA256,
+			TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+			TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+			TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+			TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
+			TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
+			TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+			TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			TLS_RSA_WITH_AES_128_GCM_SHA256,
+			TLS_RSA_WITH_AES_256_GCM_SHA384,
+			TLS_RSA_WITH_AES_128_CBC_SHA,
+			TLS_RSA_WITH_AES_256_CBC_SHA},
+		)
+
+		return ClientHelloSpec{
+			CipherSuites: append([]uint16{GREASE_PLACEHOLDER}, extensions...),
+			Extensions: []TLSExtension{
+				&UtlsGREASEExtension{},
+				&SNIExtension{},
+				&UtlsExtendedMasterSecretExtension{},
+				&RenegotiationInfoExtension{Renegotiation: RenegotiateOnceAsClient},
+				&SupportedCurvesExtension{[]CurveID{
+					CurveID(GREASE_PLACEHOLDER),
+					X25519,
+					CurveP256,
+					CurveP384,
+				}},
+				&SupportedPointsExtension{SupportedPoints: []byte{
+					pointFormatUncompressed,
+				}},
+				&SessionTicketExtension{},
+				&ALPNExtension{AlpnProtocols: []string{"h2", "http/1.1"}},
+				&StatusRequestExtension{},
+				&SignatureAlgorithmsExtension{SupportedSignatureAlgorithms: []SignatureScheme{
+					ECDSAWithP256AndSHA256,
+					PSSWithSHA256,
+					PKCS1WithSHA256,
+					ECDSAWithP384AndSHA384,
+					PSSWithSHA384,
+					PKCS1WithSHA384,
+					PSSWithSHA512,
+					PKCS1WithSHA512,
+				}},
+				&SCTExtension{},
+				&KeyShareExtension{[]KeyShare{
+					{Group: CurveID(GREASE_PLACEHOLDER), Data: []byte{0}},
+					{Group: X25519},
+				}},
+				&PSKKeyExchangeModesExtension{[]uint8{
+					PskModeDHE,
+				}},
+				&SupportedVersionsExtension{[]uint16{
+					GREASE_PLACEHOLDER,
+					VersionTLS13,
+					VersionTLS12,
+				}},
+				&CompressCertificateExtension{[]CertCompressionAlgo{
+					CertCompressionBrotli,
+				}},
+				&GenericExtension{Id: 0x4469}, // WARNING: UNKNOWN EXTENSION, USE AT YOUR OWN RISK
+				&UtlsGREASEExtension{},
+				&UtlsPaddingExtension{GetPaddingLen: BoringPaddingStyle},
 			},
 		}, nil
 	default:

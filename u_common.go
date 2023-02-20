@@ -101,6 +101,8 @@ const (
 	helloChrome           = "Chrome"
 	helloIOS              = "iOS"
 	helloAndroid          = "Android"
+	helloZalando          = "zalando"
+	hellocloudflare       = "hellocloudflare"
 
 	// versions
 	helloAutoVers = "0"
@@ -144,17 +146,24 @@ var (
 	HelloFirefox_63   = ClientHelloID{helloFirefox, "63", nil}
 	HelloFirefox_65   = ClientHelloID{helloFirefox, "65", nil}
 
-	HelloChrome_Auto = HelloChrome_100
+	HelloChrome_Auto = HelloChrome_108
 	HelloChrome_58   = ClientHelloID{helloChrome, "58", nil}
 	HelloChrome_62   = ClientHelloID{helloChrome, "62", nil}
 	HelloChrome_70   = ClientHelloID{helloChrome, "70", nil}
 	HelloChrome_72   = ClientHelloID{helloChrome, "72", nil}
 	HelloChrome_83   = ClientHelloID{helloChrome, "83", nil}
 	HelloChrome_100  = ClientHelloID{helloChrome, "100", nil}
+	HelloChrome_108  = ClientHelloID{helloChrome, "108", nil}
+	HelloChrome_110  = ClientHelloID{helloChrome, "110", nil}
 
 	HelloIOS_Auto = HelloIOS_12_1
 	HelloIOS_11_1 = ClientHelloID{helloIOS, "111", nil} // legacy "111" means 11.1
 	HelloIOS_12_1 = ClientHelloID{helloIOS, "12.1", nil}
+
+	HelloZalando       = ClientHelloID{helloZalando, "100", nil}
+	HelloCloudflare    = ClientHelloID{hellocloudflare, "100", nil}
+	HelloCloudflare_V2 = ClientHelloID{hellocloudflare, "123", nil}
+	HelloCloudflare_V3 = ClientHelloID{hellocloudflare, "125", nil}
 )
 
 // based on spec's GreaseStyle, GREASE_PLACEHOLDER may be replaced by another GREASE value
